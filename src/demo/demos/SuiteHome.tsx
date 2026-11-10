@@ -179,7 +179,7 @@ export function makeSuiteHome(suite: LauncherSuite) {
                 </> : <p>Tool details appear here when your search finds a match.</p>}
               </div>
               <footer>
-                <button type="button" className="suite-home-open" data-demo="suite-home-open" disabled={!selectedProduct || !!unavailable} aria-label={selected ? 'Open ' + selected.name : 'Open tool'} onClick={open}>Open tool</button>
+                <button type="button" className="suite-home-open" data-demo="suite-home-open" disabled={!selectedProduct || !!unavailable} aria-label={selected ? 'Open tool ' + selected.name : 'Open tool'} onClick={open}>Open tool</button>
               </footer>
             </section>
           </div>
