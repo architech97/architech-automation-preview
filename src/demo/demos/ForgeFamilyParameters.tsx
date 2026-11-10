@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Btn, Check, SearchBox, Select, TextBox } from '../ui'
 import './forgeDemo.css'
 
@@ -13,7 +13,7 @@ const FAMILIES: Family[] = [
 const NEW: Definition = { name: '', type: 'Text', binding: 'Instance' }
 const TYPES = ['Text', 'Integer', 'Number', 'Length', 'Yes/No']
 
-export default function ForgeFamilyParameters({ mode, close }: { mode: FamilyMode; close: () => void }) {
+export default function ForgeFamilyParameters({ mode, close, nestedTools, familyDocument }: { mode: FamilyMode; close: () => void; nestedTools: ReactNode; familyDocument: boolean }) {
   const [families, setFamilies] = useState(FAMILIES)
   const [source, setSource] = useState(FAMILIES[0].name)
   const [selected, setSelected] = useState<string[]>([])
@@ -54,6 +54,12 @@ export default function ForgeFamilyParameters({ mode, close }: { mode: FamilyMod
     setReceipt({ mode, created, skipped })
   }
 
+  if (!transfer && familyDocument) return <div className="forge-family-demo">
+    {nestedTools}
+    <p className="ad-note">This sample family has nested components. Choose Nested Parameters to load and associate their definitions.</p>
+    <div className="ad-row"><Btn onClick={close}>Close</Btn></div>
+  </div>
+
   return (
     <div className="forge-family-demo">
       <div className="ad-row">
@@ -61,6 +67,7 @@ export default function ForgeFamilyParameters({ mode, close }: { mode: FamilyMod
         <Check label="Hide un-checked" checked={hideUnchecked[mode]} onChange={checked => setHideUnchecked({ ...hideUnchecked, [mode]: checked })} />
         <SearchBox placeholder={transfer ? 'Search parameters…' : 'Search families…'} value={queries[mode]} onChange={query => setQueries({ ...queries, [mode]: query })} />
       </div>
+      {!transfer && nestedTools}
       <div className="ad-grid2 crafted-layout">
         <section className="ad-card suite-flow-fields" aria-label={transfer ? 'Transfer source' : 'New family parameter'}>
           <strong>{transfer ? 'Source family and definitions' : 'Define a family parameter'}</strong>

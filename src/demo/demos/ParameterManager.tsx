@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { DemoContext } from '../types'
 import { Btn, Check, RevitDialog, SearchBox, Select, TextBox } from '../ui'
 import { downloadCsv } from './craftedTools'
 import ForgeFamilyParameters from './ForgeFamilyParameters'
+import ForgeNestedParameters from './ForgeNestedParameters'
+import { INITIAL_NESTED_MODEL, NESTED_SAMPLE_FAMILY, nestedAssociationMessage } from './forgeNestedModel'
 import './suiteWorkflow.css'
 
 const categories = ['Doors', 'Windows', 'Walls', 'Furniture', 'Rooms']
@@ -14,6 +16,7 @@ const initial = { name: 'Asset Tag', source: 'Project Parameter', discipline: 'C
 type Definition = typeof initial
 const MODES = ['Parameters', 'Categories', 'Transfer', 'Families'] as const
 const SOURCES = ['Shared Parameter', 'Project Parameter']
+const SAMPLE_PROJECT_DOCUMENT = 'AT-01 Sample Residence.rvt'
 
 export default function ParameterManager({ theme, setTheme, done, rewind, notify, close }: DemoContext) {
   const [rows, setRows] = useState(existing)
@@ -24,12 +27,18 @@ export default function ParameterManager({ theme, setTheme, done, rewind, notify
   const [query, setQuery] = useState('')
   const [sourceFilter, setSourceFilter] = useState('All')
   const [copyFrom, setCopyFrom] = useState(existing[0].name)
+  const [sampleDocument, setSampleDocument] = useState(SAMPLE_PROJECT_DOCUMENT)
+  const [nestedOpen, setNestedOpen] = useState(false)
+  const [nestedModel, setNestedModel] = useState(INITIAL_NESTED_MODEL)
+  const [nestedNotice, setNestedNotice] = useState('')
+  const nestedButton = useRef<HTMLButtonElement>(null)
   const name = draft?.name.trim() ?? ''
   const duplicate = rows.some(row => row.name.toLowerCase() === name.toLowerCase())
   const canApply = Boolean(name && draft?.categories.length && !duplicate)
   const visible = (showExisting ? rows : rows.slice(existing.length)).filter(row => row.name.toLowerCase().includes(query.trim().toLowerCase())
     && (sourceFilter === 'All' || row.source === sourceFilter))
   const familyMode = mode === 'Transfer' || mode === 'Families'
+  const familyDocument = sampleDocument === NESTED_SAMPLE_FAMILY
   const change = (change: Partial<Definition>) => {
     if (!draft) return
     setDraft({ ...draft, ...change })
@@ -63,9 +72,31 @@ export default function ParameterManager({ theme, setTheme, done, rewind, notify
       rows.map(row => [row.name, row.source, row.discipline, row.spec, row.group, row.binding, row.categories.join('; ')]))
     if (applied) done('csv')
   }
+  const closeNested = () => {
+    setNestedOpen(false)
+    window.requestAnimationFrame(() => nestedButton.current?.focus())
+  }
+  const nestedTools = <div className="forge-nested-entry">
+    <div className="ad-row">
+      <button type="button" className="ad-btn" data-demo="nested-parameters" ref={nestedButton} onClick={() => {
+        if (!familyDocument) { setNestedNotice('Open a family (.rfa) document to manage nested parameters.'); return }
+        setNestedNotice('')
+        setNestedOpen(true)
+      }}>Nested Parameters</button>
+      <label className="forge-document-choice"><span className="ad-label">Sample active document</span>
+        <Select label="Sample active document" value={sampleDocument} options={[SAMPLE_PROJECT_DOCUMENT, NESTED_SAMPLE_FAMILY]} onChange={document => {
+          setSampleDocument(document)
+          setNestedNotice('')
+        }} />
+      </label>
+    </div>
+    {nestedNotice && <p className="ad-status" role="status">{nestedNotice}</p>}
+  </div>
 
-  return (
-    <RevitDialog theme={theme} onTheme={setTheme} title="Parameter Manager" caption="Project parameters · Category bindings" onClose={close}
+  return <>
+    <div hidden={nestedOpen}>
+    <RevitDialog theme={theme} onTheme={setTheme} title="Parameter Manager"
+      caption={mode === 'Families' && familyDocument ? `Sample family · ${sampleDocument}` : 'Project parameters · Category bindings'} onClose={close}
       footer={!familyMode && <><span className="ad-status">Total {rows.length + (draft ? 1 : 0)} · Create {draft ? 1 : 0} · Modify 0 · Existing {rows.length}</span>
         <Btn onClick={close}>Close</Btn>
         {draft && <Btn onClick={() => { setDraft(null); setMode('Parameters'); rewind('add') }}>Discard draft</Btn>}
@@ -76,7 +107,7 @@ export default function ParameterManager({ theme, setTheme, done, rewind, notify
         {MODES.map(tab => <button key={tab} type="button" className={'ad-tab' + (tab === mode ? ' on' : '')}
           aria-pressed={tab === mode} data-demo={tab === 'Categories' ? 'parameter-categories' : undefined} onClick={() => chooseMode(tab)}>{tab}</button>)}
       </div>
-      <div hidden={!familyMode}><ForgeFamilyParameters mode={mode === 'Families' ? 'Families' : 'Transfer'} close={close} /></div>
+      <div hidden={!familyMode}><ForgeFamilyParameters mode={mode === 'Families' ? 'Families' : 'Transfer'} close={close} nestedTools={nestedTools} familyDocument={familyDocument} /></div>
       {!familyMode && <>
       <div className="ad-row">
         <Btn demo="add-parameter" disabled={Boolean(draft)} onClick={() => add(rows.some(row => row.name === initial.name) ? { ...initial, name: '' } : initial)}>+ Add Parameter</Btn>
@@ -126,5 +157,8 @@ export default function ParameterManager({ theme, setTheme, done, rewind, notify
       </div>}
       </>}
     </RevitDialog>
-  )
+    </div>
+    {nestedOpen && <ForgeNestedParameters theme={theme} onTheme={setTheme} model={nestedModel} close={closeNested}
+      onApply={(next, result) => { setNestedModel(next); setNestedNotice(nestedAssociationMessage(result)) }} />}
+  </>
 }

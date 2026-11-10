@@ -11,6 +11,24 @@ import { suiteHomeSteps } from './suiteHomeCatalog'
 // DemoContext), add an entry here, and map the tool key to its id in src/data/catalog.ts.
 const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
   {
+    id: 'excel-to-schedule', productSlug: 'excel-to-schedule', width: 1040,
+    ribbon: { tab: 'Arch Folio', panel: 'Schedules', button: 'Excel to Schedule' },
+    title: 'Excel to Schedule',
+    summary: 'Choose an Excel region, preview the cells and review a relink of a placed sample schedule.',
+    basis: [
+      'The workbook, worksheet, options and preview panes follow the installed Revit 2024 dialog.',
+      'The sample uses the workbook region, target eligibility and relink rules from the native command. Existing schedule IDs and placements carry through the simulated refresh.',
+    ],
+    steps: [
+      { id: 'workbook', title: 'Open the sample workbook', hint: 'Browse for a fictional workbook and inspect its worksheet tabs.', target: 'excel-workbook' },
+      { id: 'region', title: 'Choose an Excel region', hint: 'Try a print area or named region and compare the cell preview.', target: 'excel-region' },
+      { id: 'worksheet', title: 'Tick one worksheet', hint: 'Leave one worksheet checked when choosing an existing target.', target: 'excel-worksheets' },
+      { id: 'target', title: 'Choose an existing schedule', hint: 'Review ownership and sheet placements before choosing a target.', target: 'excel-existing' },
+      { id: 'refresh', title: 'Confirm the refresh', hint: 'Review the source and target, then check the retained sample schedule identity.', target: 'excel-confirm' },
+    ],
+    load: () => import('./demos/ExcelToSchedule'),
+  },
+  {
     id: 'replace-materials', productSlug: 'replace-materials', width: 900,
     ribbon: { tab: 'Arch Forge', panel: 'Finishes', button: 'Replace Materials' },
     title: 'Replace Materials',
@@ -73,6 +91,7 @@ const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
     basis: [
       'Parameters and Categories use the names, data types and category bindings shown in ParameterManagerWindow.xaml.',
       'The exercise applies changes to a browser fixture and downloads a CSV of its definitions.',
+      'Nested Parameters requires an active family document in Revit. Choose the sample family under Families to try association and read back the results.',
     ],
     steps: [
       { id: 'add', title: 'Draft a parameter', hint: 'Use Add Parameter and review the name, data type and instance or type setting.', target: 'add-parameter' },
