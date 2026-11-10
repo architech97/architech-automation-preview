@@ -53,6 +53,15 @@ const EXTRA_COMPATIBILITY: Partial<Record<string, ProductCompatibility>> = {
 export function productCompatibility(product: Product): ProductCompatibility {
   const extra = EXTRA_COMPATIBILITY[product.slug]
   if (extra) return extra
+  if (product.panel === 'Start' || product.key === 'PointCloudVisibility') {
+    return {
+      platform: 'Windows · .NET Framework 4.8',
+      host: 'Autodesk Revit 2024',
+      scope: product.panel === 'Start'
+        ? 'This launcher is part of the installed suite ribbon.'
+        : 'This command ships in the Point Cloud Tools split button alongside Point Cloud Slicer.',
+    }
+  }
   return {
     platform: 'Windows · .NET Framework 4.8',
     host: 'Autodesk Revit',

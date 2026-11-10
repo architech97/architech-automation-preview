@@ -4,11 +4,51 @@ import { PRODUCTS } from '../data/catalog'
 import { LAYOUTS, generatedSteps } from './generatedRegistry'
 import { connectorDemos } from './connectorRegistry'
 import { studioDemos } from './studioRegistry'
+import { suiteHomeSteps } from './suiteHomeCatalog'
 
 
 // Every interactive demo. To add one: write src/demo/demos/<Name>.tsx (a component that takes
 // DemoContext), add an entry here, and map the tool key to its id in src/data/catalog.ts.
 const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
+  {
+    id: 'replace-materials', productSlug: 'replace-materials', width: 900,
+    ribbon: { tab: 'Arch Forge', panel: 'Finishes', button: 'Replace Materials' },
+    title: 'Replace Materials',
+    summary: 'Set material, categories and scope, scan the impact, then apply the reviewed sample replacements.',
+    basis: ['The controls and impact-scan requirement follow the deployed Revit 2024 dialog and scoped material replacement rules.'],
+    steps: [
+      { id: 'configure', title: 'Set replacement scope', hint: 'Choose the two materials, work scope and type handling.', target: 'replace-configure' },
+      { id: 'scan', title: 'Scan impact', hint: 'Check how many elements and types the current settings affect.', target: 'replace-scan' },
+      { id: 'replace', title: 'Apply the reviewed replacement', hint: 'Run the sample replacement with a current impact scan.', target: 'replace-apply' },
+    ],
+    load: () => import('./demos/ReplaceMaterials'),
+  },
+  {
+    id: 'match-opening', productSlug: 'match-opening', width: 1040,
+    ribbon: { tab: 'Arch Forge', panel: 'Rooms', button: 'Match Opening' },
+    title: 'Match Opening',
+    summary: 'Scan a linked model, review opening differences and apply the selected sample changes.',
+    basis: ['The scan, tolerances, opening review and apply order follow the deployed Match Opening dialog.'],
+    steps: [
+      { id: 'scan', title: 'Scan the linked openings', hint: 'Choose a linked model and check the scan settings.', target: 'opening-scan' },
+      { id: 'select', title: 'Review the candidates', hint: 'Tick a Create or Resize row in the sample comparison.', target: 'opening-select' },
+      { id: 'apply', title: 'Apply selected changes', hint: 'Review and confirm any host replacement before applying.', target: 'opening-apply' },
+    ],
+    load: () => import('./demos/MatchOpening'),
+  },
+  {
+    id: 'point-cloud-on-off', productSlug: 'point-cloud-on-off', width: 820,
+    ribbon: { tab: 'Arch Forge', panel: 'Scan to BIM', button: 'Point Cloud On/Off' },
+    title: 'Point Cloud On/Off',
+    summary: 'Toggle point clouds in the sample view and restore the previous visibility with Undo.',
+    basis: ['The native split-button command toggles the Point Clouds category in the active view. A view template or unsupported view can block the toggle.'],
+    steps: [
+      { id: 'view', title: 'Choose a sample view', hint: 'Compare a working view with a view that cannot change point-cloud visibility.', target: 'pointcloud-view' },
+      { id: 'toggle', title: 'Toggle the point cloud', hint: 'Run Point Cloud On/Off in a supported sample view.', target: 'pointcloud-toggle' },
+      { id: 'undo', title: 'Restore the previous view', hint: 'Undo the sample visibility change.', target: 'pointcloud-undo' },
+    ],
+    load: () => import('./demos/PointCloudVisibility'),
+  },
   {
     id: 'sheet-export', productSlug: 'sheet-export', width: 1080,
     ribbon: { tab: 'Arch Folio', panel: 'Publish', button: 'Sheet Export' },
@@ -67,9 +107,9 @@ const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
     ribbon: { tab: 'Arch Sentinel', panel: 'Model Health', button: 'Warnings Inspector' },
     title: 'Warnings Inspector: critical warnings first',
     summary: 'Review grouped warnings by severity class and frequency, search descriptions or an element ID, inspect a group and isolate its elements, then export the scan.',
-    basis: ['Stat tiles, filters, columns and review panel from WarningsWindow.xaml.', 'Severity classes Critical / Warning / Info and sort options Priority first / Most frequent / Description from the code-behind.', 'Warning texts are Revit\'s own messages; counts and element IDs are sample values.'],
+    basis: ['Stat tiles, filters, review panel and stale-scan guard follow the native Warnings Inspector.', 'The browser maps sample warnings to documented failure definitions and labels description-based fallbacks. Counts and element IDs are fictional.', 'The native tool exports an XLSX workbook. This browser exercise downloads all groups as a sample CSV.'],
     steps: [
-      { id: 'filter', title: 'Show critical warnings', hint: 'Set Severity class to Critical.', target: 'severity' },
+      { id: 'filter', title: 'Show critical warnings', hint: 'Set Severity class to CRITICAL.', target: 'severity' },
       { id: 'pick', title: 'Review a warning group', hint: 'Click a row to read its full description and affected element IDs.', target: 'grid' },
       { id: 'isolate', title: 'Isolate the affected elements', hint: 'Press Isolate affected elements to review them in the view.', target: 'isolate' },
       { id: 'search', title: 'Search by element ID', hint: 'Type an element ID from the list (for example 301178) into the search box.', target: 'search' },
@@ -81,8 +121,8 @@ const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
     id: 'purge-merge', productSlug: 'purge-and-merge', width: 1060,
     ribbon: { tab: 'Arch Sentinel', panel: 'Clean Up', button: 'Purge and Merge' },
     title: 'Purge & Merge: clean up unused content',
-    summary: 'Scan reusable content kinds at once, see what is used or unused, tick a safe selection and purge it in one undoable step.',
-    basis: ['Columns, Show filters, type tags and footer actions from PurgeWindow.xaml.', 'Type tags MAT, PAT, V-F, V-T, L-P, L-S, F-R, TXT, M-G, D-G from the Type column tooltip.', 'The sample purge calls out referenced entries before confirmation and protects the system line style.'],
+    summary: 'Review unused and referenced entries, confirm a sample deletion preview, or merge a concrete material pair.',
+    basis: ['Columns, Show filters, type tags and footer actions from PurgeWindow.xaml.', 'The native tool previews deletion in a rolled-back Revit transaction. The browser shows fictional eligible, protected and referenced records.', 'The sample merge redirects six model type references to the chosen surviving material.'],
     steps: [
       { id: 'scan', title: 'Read the scan', hint: 'Unused entries are listed by default. Tick Used to see referenced ones too.', target: 'show-used' },
       { id: 'search', title: 'Find CAD-import leftovers', hint: 'Search "IMPORT" to find line styles and patterns brought in by CAD imports.', target: 'search' },
@@ -157,12 +197,46 @@ const CRAFTED: Omit<DemoDefinition, 'kind'>[] = [
 
 const SUITE_TAB: Record<string, string> = { folio: 'Arch Folio', forge: 'Arch Forge', sentinel: 'Arch Sentinel' }
 
+const SENTINEL_COMMANDS: Partial<Record<string, { width: number; basis: string[]; steps: DemoDefinition['steps'] }>> = {
+  'pin-unpin-links': {
+    width: 1000,
+    basis: ['The four commands, pin-state table and confirmation follow the code-built native workbench.', 'Every change affects only the three fictional browser placements.'],
+    steps: [
+      { id: 'configure', title: 'Choose a pinning scope', hint: 'Choose Pin RVT links to change the unpinned Revit link while leaving CAD alone.', target: 'flow-choice' },
+      { id: 'run', title: 'Review and apply', hint: 'Check the number and IDs of affected placements, then confirm the sample operation.', target: 'flow-run' },
+      { id: 'review', title: 'Check the pin states', hint: 'Read the refreshed grid and mark the result reviewed.', target: 'flow-review' },
+    ],
+  },
+  'in-place-inspector': {
+    width: 940,
+    basis: ['The report columns, severity thresholds and row actions follow the code-built native inspector.', 'The browser tracks only fictional family records. The CSV contains the current sample rows.'],
+    steps: [
+      { id: 'configure', title: 'Choose an in-place family', hint: 'Select Reception Millwork to review its 22 sample instances.', target: 'flow-choice' },
+      { id: 'run', title: 'Show in 3D View', hint: 'Check the sample isolation result for the selected family.', target: 'flow-run' },
+      { id: 'review', title: 'Review the result', hint: 'Read the result and mark it reviewed. You can also inspect or delete another sample family.', target: 'flow-review' },
+    ],
+  },
+}
+
 function defineDemo(product: Product): DemoDefinition {
   const crafted = CRAFTED.find((entry) => entry.productSlug === product.slug)
   if (crafted) return { ...crafted, kind: 'crafted' }
 
   const ribbon = { tab: SUITE_TAB[product.suite] ?? product.software[0] ?? product.name, panel: product.panel, button: product.name }
   const base = { id: product.demo ?? product.slug, productSlug: product.slug, ribbon, summary: product.tagline }
+  if (product.panel === 'Start' && (product.suite === 'folio' || product.suite === 'forge' || product.suite === 'sentinel')) {
+    const suite = product.suite
+    return {
+      ...base,
+      kind: 'crafted',
+      width: 1080,
+      title: product.name,
+      summary: 'Browse the ribbon groups, find a tool and review whether it can open in the sample context.',
+      basis: ['The launcher matches the installed Revit 2024 layout, panel order and tool labels. Opening a tool leads to its browser simulation.'],
+      steps: suiteHomeSteps(suite),
+      load: async () => ({ default: (await import('./demos/SuiteHome')).makeSuiteHome(suite) }),
+    }
+  }
   const studio = studioDemos[product.slug] ?? connectorDemos[product.slug]
   if (studio) return { ...base, kind: 'workflow', width: 1020, frame: 'app', ...studio }
 
@@ -182,16 +256,17 @@ function defineDemo(product: Product): DemoDefinition {
     }
   }
 
+  const command = SENTINEL_COMMANDS[product.slug]
   return {
     ...base,
     kind: 'workflow',
-    width: 660,
+    width: command?.width ?? 660,
     title: product.name,
-    basis: [
+    basis: command?.basis ?? [
       `This sample scenario follows the command documented by ${product.name}.`,
       'The browser shows illustrative inputs and outcomes for Sample Residence.',
     ],
-    steps: [
+    steps: command?.steps ?? [
       { id: 'configure', title: 'Choose a sample input', hint: 'Pick an option to see how it affects the outcome.', target: 'flow-choice' },
       { id: 'run', title: 'Run the command', hint: 'Apply the command to the selected sample input.', target: 'flow-run' },
       { id: 'review', title: 'Review the result', hint: 'Inspect the sample results and mark them reviewed.', target: 'flow-review' },

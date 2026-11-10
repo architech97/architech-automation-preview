@@ -1,7 +1,8 @@
 # ArchiTECH Automation · Plugins website
 
-The commercial marketplace for ArchiTECH's BIM productivity software: 65 products (58 Revit tools in the
-Arch Folio, Arch Forge and Arch Sentinel suites, plus ArchiTECH-I3D and the AI & MCP connectors), with an interactive browser demo for each product.
+The commercial marketplace for ArchiTECH's BIM productivity software, with interactive browser
+demos for the Revit suites, ArchiTECH-I3D, Assistant and the MCP connectors. The suite launchers
+and Point Cloud On/Off are covered as ribbon workflows.
 
 This repository publishes the isolated [Automation staging preview](https://architech97.github.io/architech-automation-preview/).
 It starts from Automation source revision `ee7f8f50b0ceb2e76619c0d74b1f8578a9924cc7`. The preview is excluded from search indexing.
@@ -48,6 +49,16 @@ Use the real dialog's labels, options and rules. Do not add capabilities the plu
 Coverage counts in the demo library are derived from the catalogue and registry. For layout-based
 demos, the browser workflow and dialog layout share sample state. Validate inputs and show a result
 the visitor can inspect before marking the guide complete.
+
+## Revit 2024 dialog alignment
+
+The suite audit compared 58 installed tool registrations and the shared ribbon registration with the
+catalogue and dialog references. Installed WPF resource names were checked for window coverage. The
+shared Home dialog opens as Folio Home, Forge Home or Sentinel Home, with 19, 17 and 23 tool entries
+respectively. Sample availability and generated output are simulated independently of the desktop.
+
+Layout-based demos open in Dialog layout on wider screens and in Browser workflow on smaller
+screens. Native file generation and model edits are represented by sample results and receipts.
 
 Licensing and custom-development enquiries prepare an email draft locally. Visitors review it and send
 it with their own email client.

@@ -73,8 +73,8 @@ const DEMO_FORMATS = {
     description: 'Work through a specific task with sample inputs and check what changes.',
   },
   replica: {
-    label: 'Dialog explorer',
-    description: 'Try the controls and inspect sample rows in a reconstruction of the plugin dialog.',
+    label: 'Dialog workflow',
+    description: 'Use the reconstructed Revit controls to run a sample task and inspect the result.',
   },
   workflow: {
     label: 'Browser workflow',

@@ -39,9 +39,9 @@ export const WARNINGS: WarningGroup[] = [
   { id: 4, severity: 'Warning', description: 'Highlighted floors overlap.', count: 6, elements: [288410, 288412, 288530, 288531] },
   { id: 5, severity: 'Warning', description: 'Multiple Rooms are in the same enclosed region. The correct area and perimeter will be assigned to one Room and the others will display "Not Enclosed".', count: 3, elements: [410044, 410045, 410051] },
   { id: 6, severity: 'Warning', description: 'Highlighted room separation lines overlap.', count: 4, elements: [512003, 512004, 512019, 512020] },
-  { id: 7, severity: 'Info', description: 'Line is slightly off axis and may cause inaccuracies.', count: 37, elements: [620001, 620014, 620027, 620033, 620048] },
-  { id: 8, severity: 'Info', description: 'Wall is slightly off axis and may cause inaccuracies.', count: 11, elements: [301500, 301502, 301517] },
-  { id: 9, severity: 'Warning', description: 'Elements have duplicate "Mark" values.', count: 8, elements: [355210, 355211, 355240, 355241] },
+  { id: 7, severity: 'Warning', description: 'Line is slightly off axis and may cause inaccuracies.', count: 37, elements: [620001, 620014, 620027, 620033, 620048] },
+  { id: 8, severity: 'Warning', description: 'Wall is slightly off axis and may cause inaccuracies.', count: 11, elements: [301500, 301502, 301517] },
+  { id: 9, severity: 'Critical', description: 'Elements have duplicate "Mark" values.', count: 8, elements: [355210, 355211, 355240, 355241] },
 ]
 
 export interface PurgeItem { id: number; tag: string; name: string; info: string; detail: string; used: boolean }
@@ -62,6 +62,7 @@ export const PURGE: PurgeItem[] = [
   { id: 912, tag: 'F-R', name: 'Solid Black 2', info: 'Filled region type', detail: 'Not referenced', used: false },
   { id: 913, tag: 'TXT', name: '2.5mm Arial copy', info: 'Text note type', detail: 'Not referenced', used: false },
   { id: 914, tag: 'D-G', name: 'Kitchen Island Detail', info: 'Detail group', detail: 'Not placed', used: false },
+  { id: 915, tag: 'TXT', name: '2.5mm Arial', info: 'Text note type', detail: 'Project default', used: true },
 ]
 export const PURGE_KINDS: Record<string, string> = {
   MAT: 'Materials', PAT: 'Fill patterns', 'V-F': 'View filters', 'V-T': 'View templates', 'L-P': 'Line patterns',

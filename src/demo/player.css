@@ -19,6 +19,13 @@
 .rp-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; font: 600 12.5px/1 var(--font-body); color: #fff; background: rgba(34, 211, 238, .14); box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .45); }
 .rp-icon { width: 16px; height: 16px; border-radius: 4px; background: linear-gradient(135deg, var(--cyan), var(--blue)); }
 .rp-name { font: 500 11px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: #a1aabb; }
+.player-theme-trigger { margin-left: auto; border: 1px solid var(--line-strong); border-radius: 5px; padding: 4px 9px; min-height: 30px; color: var(--text); background: transparent; font-size: .75rem; cursor: pointer; white-space: nowrap; }
+.player-theme-dialog { width: min(500px, calc(100% - 24px)); border: 1px solid var(--line-strong); border-radius: 8px; color: var(--text); background: var(--panel); padding: 22px; }
+.player-theme-dialog[open] { display: grid; gap: 14px; }
+.player-theme-dialog::backdrop { background: #080d18b0; }
+.player-theme-dialog fieldset { border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; }
+.player-theme-dialog .player-actions { justify-content: end; }
+@media (max-width: 410px) { .revit-panel { flex-wrap: wrap; gap: 6px; } }
 .revit-canvas { position: relative; flex: 1; padding: clamp(10px, 2.4vw, 28px); background: radial-gradient(circle at 50% 40%, #2a2d33, #1d1f24 70%); min-height: 520px; display: flex; align-items: flex-start; justify-content: center; }
 .revit-plan { position: absolute; inset: 40px; width: calc(100% - 80px); height: calc(100% - 80px); color: rgba(150, 165, 190, .14); pointer-events: none; }
 .dialog-host { position: relative; width: 100%; z-index: 1; }

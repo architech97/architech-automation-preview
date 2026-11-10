@@ -1,12 +1,16 @@
 import { fixtureResult } from './generatedFixtures'
+import { sentinelResult } from './sentinelFixtures'
+import { forgeResult } from './forgeFixtures'
+import { folioTextResult } from './folioTextPreview'
 
 export interface WorkflowField { label: string; value: string }
 export interface WorkflowRecord { label: string; columns: Record<string, string> }
-interface WorkflowInput {
+export interface WorkflowInput {
   slug: string
   action: string
   fields: WorkflowField[]
   records: WorkflowRecord[]
+  windowName?: string
 }
 export interface WorkflowResult {
   summary: string
@@ -25,12 +29,20 @@ function millimetres(value: string) {
   return Number(match[1]) * ({ m: 1000, cm: 10, mm: 1 }[match[2]?.toLowerCase() ?? 'mm'] ?? 1)
 }
 
-export function simulatedResult({ slug, action, fields, records }: WorkflowInput): WorkflowResult | string {
+export function simulatedResult(input: WorkflowInput): WorkflowResult | string {
+  const sentinel = sentinelResult(input)
+  if (sentinel !== undefined) return sentinel
+  const forge = forgeResult(input)
+  if (forge !== undefined) return forge
+  const { slug, action, fields, records } = input
   const get = (name: RegExp) => field(fields, name)
   const value = (record: WorkflowRecord, ...columns: string[]) => columns.map((column) => record.columns[column]).find((item) => item && item !== '—') ?? ''
   const rowResults = (format: (record: WorkflowRecord, index: number) => string) => records.map((record, index) => resultRow(record.label, format(record, index)))
 
   switch (slug) {
+    case 'manage-text':
+      if (action === 'Apply') return folioTextResult(fields, records)
+      break
     case 'section-box': {
       const padding = millimetres(get(/padding/i))
       if (!Number.isFinite(padding) || padding > 100000) return 'Enter padding between 0 and 100,000 mm. You can use mm, cm, or m.'
@@ -116,21 +128,6 @@ export function simulatedResult({ slug, action, fields, records }: WorkflowInput
         }),
       }
     }
-    case 'compliance-guard': {
-      const pin = action === 'Pin selected'
-      const remove = action === 'Delete reviewed candidates'
-      const rows = rowResults((record) => {
-        const issue = value(record, 'SOP Issue')
-        if (pin) return issue.startsWith('Unpinned') ? 'Coordination link pinned in the sample' : `${issue} · unchanged`
-        if (remove) return issue.startsWith('Imported') ? 'Reviewed CAD line style queued for removal in the sample' : `${issue} · unchanged`
-        return `${issue} · ${value(record, 'View / Location')}`
-      })
-      return { summary: pin || remove ? 'Reviewed the selected sample issues against the chosen fix.' : `Found ${records.length} sample compliance findings.`, rows }
-    }
-    case 'room-height-adjust':
-      return { summary: 'Prepared room upper limits from the first valid ceiling above each room.', rows: rowResults((record) => `${value(record, 'Height now')} → ${value(record, 'New height')} · ${value(record, 'Change')}`) }
-    case 'room-level-assigner':
-      return { summary: 'Prepared target-level assignments and retained the sample room numbers.', rows: rowResults((record) => `${value(record, 'Current Level')} → ${value(record, 'Target Level')}`) }
     case 'text-tag-align': {
       const horizontal = action === 'Align Horizontally'
       return {
@@ -166,33 +163,6 @@ export function simulatedResult({ slug, action, fields, records }: WorkflowInput
     }
     case 'parameter-colorizer':
       return { summary: `Prepared color overrides for ${records.length} sample value groups.`, rows: rowResults((record) => `${value(record, 'Elements')} elements · ${value(record, 'Color')}`) }
-    case 'scope-box-synchronizer':
-      return {
-        summary: 'Compared the sample host scope boxes with the master link.',
-        rows: rowResults((record) => `${value(record, 'Status')} · ${value(record, 'Source Link Extents')}${value(record, 'Drift (mm)') ? ` · ${value(record, 'Drift (mm)')} mm drift` : ''}`),
-      }
-    case 'off-axis-resolver': {
-      const tolerance = Number(get(/accidental tolerance|^tolerance/i) || 1)
-      if (!Number.isFinite(tolerance) || tolerance <= 0 || tolerance > 45) return 'Enter an accidental angle tolerance greater than 0° and no more than 45°.'
-      const fixing = /^fix/i.test(action)
-      return {
-        summary: `Reviewed ${records.length} sample offsets against the nearest orthogonal axis at a ${tolerance}° tolerance.`,
-        rows: rowResults((record) => {
-          const route = value(record, 'Route')
-          const deviation = parseFloat(value(record, 'Deviation'))
-          return route === 'Review only' || deviation > tolerance
-            ? `${value(record, 'Current')} · ${value(record, 'Reason') || 'Requires review'} · unchanged`
-            : `${value(record, 'Current')} → ${value(record, 'Target')} · ${fixing ? 'Corrected in sample' : route}`
-        }),
-      }
-    }
-    case 'structural-qa': {
-      const beams = get(/^inspection mode$/i) === 'Beam endpoint contact'
-      const rows = beams
-        ? [{ label: 'Beam B-01 · Grid A/1', value: 'Endpoint intersects support · Pass' }, { label: 'Beam B-02 · Grid B/2', value: '18 mm endpoint gap · Review' }]
-        : rowResults((record) => `${value(record, 'QA Status')} · ${value(record, 'Measured Deviation / Reference')}`)
-      return { summary: beams ? 'Checked sample beam endpoint contact.' : 'Checked the selected sample columns against their nearest grid intersection.', rows }
-    }
     case 'template-manager':
       if (action === 'Transfer Selected Templates') {
         const source = get(/pick an open model/i)

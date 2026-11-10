@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { RevitDialog, Btn, Check } from './ui'
 import { downloadCsv } from './demos/craftedTools'
+import { InPlaceInspector, PinLinks } from './demos/SentinelInspectors'
 import type { DemoContext } from './types'
 
 interface CommandCase {
@@ -40,26 +41,6 @@ const CASES: Record<string, CommandCase> = {
     action: 'Scan links and imports',
     downloadable: true,
   },
-  'pin-unpin-links': {
-    input: 'Action and scope',
-    choices: [
-      { option: 'Pin Revit links', rows: [['Structure.rvt', 'Pinned'], ['Interiors.rvt', 'Unpinned → Pinned'], ['Site-survey.dwg', 'Outside scope']] },
-      { option: 'Pin CAD imports', rows: [['Structure.rvt', 'Outside scope'], ['Interiors.rvt', 'Outside scope'], ['Site-survey.dwg', 'Unpinned → Pinned']] },
-      { option: 'Unpin all links', rows: [] },
-      { option: 'Pin all links', rows: [] },
-    ],
-    action: 'Review pin state change',
-    preview: 'Review affected placements before applying the sample pin state.'
-  },
-  'in-place-inspector': {
-    input: 'Review focus',
-    choices: [
-      { option: 'All in-place families', rows: [['Reception Millwork', 'Casework · 18 instances · Review for conversion'], ['Lobby Bulkhead', 'Generic Models · 2 instances · Review'], ['Test Plinth', 'Generic Models · 0 instances · Unused']] },
-      { option: 'Inspect Reception Millwork', rows: [['Family', 'Reception Millwork · Casework'], ['Instances', '18'], ['Result', 'Sample 3D isolation view for review']] },
-    ],
-    action: 'Review families',
-    downloadable: true,
-  },
   'split-floor-ceiling': {
     input: 'Selected elements',
     choices: [
@@ -93,17 +74,14 @@ const CASES: Record<string, CommandCase> = {
 
 interface CommandSpec { slug: string; name: string; tagline: string; safeguards: string[] }
 
-const LINKS = [
-  { name: 'Structure.rvt', kind: 'RVT', pinned: true },
-  { name: 'Interiors.rvt', kind: 'RVT', pinned: false },
-  { name: 'Site-survey.dwg', kind: 'CAD', pinned: false },
-]
 const SPOT_VIEWS = [
   { name: 'Ground Floor Plan', spots: 6 },
   { name: 'North Elevation', spots: 4 },
 ]
 
 export function makeCommand(spec: CommandSpec) {
+  if (spec.slug === 'pin-unpin-links') return PinLinks
+  if (spec.slug === 'in-place-inspector') return InPlaceInspector
   const example = CASES[spec.slug]
   return function Command({ theme, setTheme, done, rewind, notify, close }: DemoContext) {
     const [choice, setChoice] = useState(0)
@@ -112,21 +90,15 @@ export function makeCommand(spec: CommandSpec) {
     const [confirm, setConfirm] = useState(false)
     const [scope, setScope] = useState('Whole project')
     const [allowDependents, setAllowDependents] = useState(false)
-    const [links, setLinks] = useState(LINKS)
     const [patterns, setPatterns] = useState<Record<string, string>>({})
     const selected = example.choices[choice]
-    const isPin = spec.slug === 'pin-unpin-links'
     const isSpot = spec.slug === 'spot-elevation-line'
     const isFloor = spec.slug === 'split-floor-ceiling'
     const dependent = isFloor && choice === 3
-    const needsConfirmation = (spec.slug === 'coord-plan' && choice === 0) || isPin || isSpot || (dependent && allowDependents)
-    const pin = choice !== 2
-    const affectsLink = (kind: string) => choice >= 2 || kind === (choice === 0 ? 'RVT' : 'CAD')
+    const needsConfirmation = (spec.slug === 'coord-plan' && choice === 0) || isSpot || (dependent && allowDependents)
     const spotTargets = scope === 'Active view' ? SPOT_VIEWS.slice(0, 1)
       : scope === 'Selected sheets / views' ? SPOT_VIEWS.slice(1) : SPOT_VIEWS
-    const pinCount = links.filter((link) => affectsLink(link.kind) && link.pinned !== pin).length
-    const summary = isPin ? pinCount + ' placements would change.'
-      : isSpot ? spotTargets.reduce((total, view) => total + view.spots, 0) + ' spot elevations across ' + spotTargets.length + ' sample view(s).'
+    const summary = isSpot ? spotTargets.reduce((total, view) => total + view.spots, 0) + ' spot elevations across ' + spotTargets.length + ' sample view(s).'
         : dependent ? 'The hosted tag for F-112 would be deleted.' : example.preview
 
     const run = () => {
@@ -136,11 +108,6 @@ export function makeCommand(spec: CommandSpec) {
         return
       }
       let rows = selected.rows
-      if (isPin) {
-        rows = links.map((link) => [link.name, !affectsLink(link.kind) ? 'Outside scope' :
-          link.pinned === pin ? (pin ? 'Already pinned' : 'Already unpinned') : pin ? 'Unpinned → Pinned' : 'Pinned → Unpinned'])
-        setLinks(links.map((link) => affectsLink(link.kind) ? { ...link, pinned: pin } : link))
-      }
       if (isSpot) {
         const pattern = choice === 3 ? 'By view · override cleared' : selected.option
         rows = spotTargets.map((view) => [view.name, view.spots + ' spot elevations · ' + pattern])
@@ -188,7 +155,6 @@ export function makeCommand(spec: CommandSpec) {
             </select>
           </label>}
           {dependent && <Check label="Allow deletion of the hosted sample tag" checked={allowDependents} onChange={setAllowDependents} />}
-          {isPin && <dl className="crafted-result">{links.map((link) => <div key={link.name}><dt>{link.name}</dt><dd>{link.pinned ? 'Pinned' : 'Unpinned'}</dd></div>)}</dl>}
           {isSpot && <dl className="crafted-result">{SPOT_VIEWS.map((view) => <div key={view.name}><dt>{view.name}</dt><dd>{patterns[view.name] ?? 'By view'}</dd></div>)}</dl>}
         </>}
         {spec.safeguards[0] && <p className="ad-status">{spec.safeguards[0]}</p>}

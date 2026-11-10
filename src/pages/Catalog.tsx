@@ -12,6 +12,7 @@ const TASKS = [
   { id: 'data', label: 'Manage model data', note: 'Parameters, worksets and standards', panels: ['Parameters', 'Standards'] },
   { id: 'coordination', label: 'Check and coordinate', note: 'Warnings, linked models and cleanup', panels: ['Model Health', 'Clean Up', 'Coordination', 'Links'] },
   { id: 'automation', label: 'Automate across apps', note: 'Photo to 3D, connectors and Assistant', panels: ['Desktop app', 'MCP connectors', 'Assistant'] },
+  { id: 'launchers', label: 'Browse a Revit suite', note: 'Folio, Forge and Sentinel Home', panels: ['Start'] },
 ]
 
 const SOFTWARE = [...new Set(PRODUCTS.flatMap((product) => product.software))].sort()

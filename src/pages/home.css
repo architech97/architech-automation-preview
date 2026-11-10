@@ -17,7 +17,7 @@
 .hero-tool-plate { min-width: 0; margin: 0; color: #f1efea; background: #121315; border: 1px solid #3e424b; border-radius: 6px; overflow: hidden; box-shadow: 0 26px 60px -34px #28334a96; }
 .hero-plate-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; border-bottom: 1px solid #383d47; padding: 10px 14px; font: 500 .69rem/1.35 var(--font-mono); }
 .hero-plate-header span:last-child { color: #b3c5f2; }
-.hero-plate-image { display: grid; place-items: center; padding: clamp(7px,1.5vw,20px); aspect-ratio: 2.03; overflow: hidden; background: #1a202b; }
+.hero-plate-image { display: grid; place-items: center; padding: clamp(7px,1.5vw,20px); aspect-ratio: 1.58; overflow: hidden; background: #1a202b; background-image: linear-gradient(#8ca7cf12 1px, transparent 1px), linear-gradient(90deg, #8ca7cf12 1px, transparent 1px); background-size: 24px 24px; }
 .hero-plate-image img { max-height: 100%; min-height: 0; width: 100%; height: 100%; object-fit: contain; animation: plate-reveal .32s var(--ease) both; }
 .hero-plate-image:focus-visible { outline-offset: -3px; }
 .hero-tool-plate figcaption { border-top: 1px solid #383d47; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 9px 15px; padding: 11px 14px; }

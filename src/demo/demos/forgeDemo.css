@@ -1,0 +1,10 @@
+.ad .suite-flow-options-row { flex-basis: 100%; }
+.ad .suite-flow-control { display: grid; gap: 4px; min-width: 0; }
+.ad .suite-flow-control select { max-width: 100%; }
+.forge-family-demo { display: grid; gap: 10px; }
+.forge-family-demo .forge-family-targets { flex-direction: column; }
+.forge-family-demo .ad-result { overflow-wrap: anywhere; }
+.forge-parameter-menu { position: relative; min-width: max-content; }
+.forge-parameter-menu summary { min-height: 34px; padding: 5px 9px; border: 1px solid var(--d-control-border); border-radius: 4px; cursor: pointer; }
+.forge-parameter-menu[open] { flex-basis: 100%; }
+.forge-parameter-menu > :not(summary) { margin-top: 6px; }

@@ -345,6 +345,16 @@ export function DemoHub() {
         </ul>
       </section>
 
+      <section className="wrap demo-index demo-featured" aria-labelledby="suite-launchers-title">
+        <div className="demo-section-title"><div><p className="demo-kicker">Revit ribbon</p><h2 id="suite-launchers-title">Suite launchers</h2></div></div>
+        <ul className="demo-rows">
+          {entries.filter(({ product }) => product.panel === 'Start').map(({ product, demo }) => <li key={demo.id}><Link to={'/demos/' + demo.id}>
+            <span><strong>{product.name}</strong><br /><small>{product.tagline}</small></span>
+            <span className="demo-kicker">{suiteById(product.suite).name}</span><ArrowUpRight size={17} aria-hidden="true" />
+          </Link></li>)}
+        </ul>
+      </section>
+
       <section ref={index} className="wrap demo-index" id="demo-index" aria-labelledby="demo-index-title">
         <div className="demo-section-title">
           <div><p className="demo-kicker">02 / Full index</p><h2 id="demo-index-title">Find a plugin</h2></div>

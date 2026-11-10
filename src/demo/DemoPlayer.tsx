@@ -7,10 +7,19 @@ import './player.css'
 
 interface LogEntry extends DemoNotice { id: number; at: string }
 
+const themePreferenceKey = 'architech-automation-demo-theme'
+
+function preferredDialogTheme(): DialogTheme {
+  try { return localStorage.getItem(themePreferenceKey) === 'light' ? 'light' : 'dark' }
+  catch { return 'dark' }
+}
+
 /** Hosts one interactive demo: simulated Revit frame, guided steps, notifications and log. */
 export function DemoPlayer({ demo, compact = false }: { demo: DemoDefinition; compact?: boolean }) {
   const Comp = useMemo(() => lazy(demo.load), [demo])
-  const [theme, setTheme] = useState<DialogTheme>('dark')
+  const [theme, setTheme] = useState<DialogTheme>(preferredDialogTheme)
+  const [nextTheme, setNextTheme] = useState<DialogTheme>(preferredDialogTheme)
+  const themeDialog = useRef<HTMLDialogElement>(null)
   const [run, setRun] = useState(0)
   const activeRun = useRef(0)
   const [doneIds, setDoneIds] = useState<string[]>([])
@@ -59,7 +68,7 @@ export function DemoPlayer({ demo, compact = false }: { demo: DemoDefinition; co
     }, 4200)
     toastTimers.current.add(timer)
   }, [run])
-  const reset = () => { clearToastTimers(); setRun(++activeRun.current); setDoneIds([]); setLog([]); setToasts([]); setClosed(false) }
+  const reset = () => { clearToastTimers(); setRun(++activeRun.current); setDoneIds([]); setLog([]); setToasts([]); setTheme(preferredDialogTheme()); setClosed(false) }
 
   // Highlight the control for the current step.
   // Re-apply when a lazily loaded control or its guide target changes.
@@ -119,6 +128,26 @@ export function DemoPlayer({ demo, compact = false }: { demo: DemoDefinition; co
             <div className="revit-panel">
               <span className="rp-btn on"><span className="rp-icon" />{demo.ribbon.button}</span>
               <span className="rp-name">{demo.ribbon.panel}</span>
+              <button className="player-theme-trigger" type="button" onClick={() => { setNextTheme(preferredDialogTheme()); themeDialog.current?.showModal() }}>Dialog Theme</button>
+              <dialog ref={themeDialog} className="player-theme-dialog" aria-label="ArchiTECH Dialog theme">
+                <h3>ArchiTECH — Dialog theme</h3>
+                <p>Choose the appearance for newly opened ArchiTECH dialogs.</p>
+                <fieldset><legend>Appearance</legend>
+                  <label><input type="radio" name="demo-theme-preference" checked={nextTheme === 'dark'} onChange={() => setNextTheme('dark')} /> Dark</label>
+                  <label><input type="radio" name="demo-theme-preference" checked={nextTheme === 'light'} onChange={() => setNextTheme('light')} /> Light</label>
+                </fieldset>
+                <p className="muted">Open dialogs retain their appearance. This sample preference applies to new browser demos.</p>
+                <div className="player-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => themeDialog.current?.close()}>Cancel</button>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => {
+                    try {
+                      localStorage.setItem(themePreferenceKey, nextTheme)
+                      themeDialog.current?.close()
+                      notify({ kind: 'success', text: 'Saved appearance for newly opened browser demos.' })
+                    } catch { notify({ kind: 'warning', text: 'Browser storage is unavailable. Use the theme selector in the open dialog.' }) }
+                  }}>Save preference</button>
+                </div>
+              </dialog>
             </div>
           </>}
           <div className="revit-canvas" ref={stage}>
@@ -130,7 +159,7 @@ export function DemoPlayer({ demo, compact = false }: { demo: DemoDefinition; co
               {closed ? (
                 <div className="reopen">
                   <p>The dialog is closed.</p>
-                  <button className="btn btn-primary btn-sm" onClick={() => setClosed(false)}>Reopen {demo.ribbon.button}</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => { setTheme(preferredDialogTheme()); setClosed(false) }}>Reopen {demo.ribbon.button}</button>
                 </div>
               ) : (
                 <Suspense fallback={<div className="loading">Loading the {demo.ribbon.button} dialog…</div>}>

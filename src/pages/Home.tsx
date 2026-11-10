@@ -30,7 +30,7 @@ function FeaturedWorkflows() {
       <figure className="hero-tool-plate">
         <div className="hero-plate-header"><span>{tool.suite} / {tool.title}</span><span>{tool.previewLabel}</span></div>
         <Link to={'/plugins/' + tool.slug + '#dialog-reference'} className="hero-plate-image" aria-label={'Inspect the ' + tool.title + ' dialog'}>
-          <img key={tool.slug} src={asset(tool.preview)} alt={tool.alt} decoding="async" />
+          <img key={tool.slug} src={asset(tool.preview)} alt={tool.alt} decoding="async" fetchPriority="high" />
         </Link>
         <figcaption>
           <div aria-live="polite"><strong>{tool.task}</strong><p>{tool.description}</p></div>
